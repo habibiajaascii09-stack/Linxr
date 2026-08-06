@@ -16,25 +16,25 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Generate local.properties
+        run: |
+          mkdir -p android
+          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Auto Find and Build Gradle Project
+      - name: Build Debug APK
         run: |
-          BUILD_FILE=$(find . -name "build.gradle" -o -name "build.gradle.kts" | head -n 1)
-          if [ -n "$BUILD_FILE" ]; then
-            PROJECT_DIR=$(dirname "$BUILD_FILE")
-            echo "Menemukan projek Gradle di: $PROJECT_DIR"
-            cd "$PROJECT_DIR"
-            if [ -f "./gradlew" ]; then
-              chmod +x gradlew
-              ./gradlew assembleDebug
-            else
-              gradle assembleDebug
-            fi
+          if [ -d "android" ]; then
+            cd android
+          fi
+          if [ -f "./gradlew" ]; then
+            chmod +x gradlew
+            ./gradlew assembleDebug
           else
-            echo "File build.gradle tidak ditemukan di repositori!"
-            exit 1
+            gradle assembleDebug
           fi
 
       - name: Upload APK Artifact
